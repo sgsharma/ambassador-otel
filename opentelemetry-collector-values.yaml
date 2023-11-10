@@ -1,0 +1,40 @@
+# Default values for opentelemetry-collector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+mode: deployment
+replicaCount: 1
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc: 
+          endpoint: ${env:MY_POD_IP}:4317
+
+  processors:
+    batch: {}
+
+  exporters:
+    debug:
+      verbosity: detailed
+    otlp/traces:
+      endpoint: "api.honeycomb.io:443"
+      headers:
+        x-honeycomb-team: <YOUR_API_KEY>
+
+  service:
+    pipelines:
+      metrics: null
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp/traces, debug]
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+    
